@@ -9,18 +9,18 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import kz.suyun.redditexample.R
-import kz.suyun.redditexample.data.GithubUser
+import kz.suyun.redditexample.data.Character
 import kz.suyun.redditexample.databinding.FragmentPostsBinding
 import kz.suyun.redditexample.view.base.fragments.BaseFragment
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class PostsFragment: BaseFragment<FragmentPostsBinding>() {
+class CharactersFragment: BaseFragment<FragmentPostsBinding>() {
 
-    val viewModel by viewModel<PostsViewModel>()
+    val viewModel by viewModel<CharacterViewModel>()
 
-    var users: MutableList<GithubUser> = mutableListOf()
+    var characters: MutableList<Character> = mutableListOf()
 
-    var adapter: PostsAdapter = PostsAdapter(users)
+    var adapter: CharacterAdapter = CharacterAdapter(characters)
 
     var binding: FragmentPostsBinding? = null
 
@@ -28,8 +28,8 @@ class PostsFragment: BaseFragment<FragmentPostsBinding>() {
         super.onViewCreated(view, savedInstanceState)
         initializeBindingData()
         initializeObservers()
+        initializeListeners()
         initiateRequestPosts()
-        initiateRemoveItem()
     }
 
     fun initializeBindingData(){
@@ -39,34 +39,42 @@ class PostsFragment: BaseFragment<FragmentPostsBinding>() {
     companion object{
         @JvmStatic
         @BindingAdapter("bind:adapter")
-        fun initializeAdapter(recyclerView: RecyclerView, adapter: PostsAdapter){
+        fun initializeAdapter(recyclerView: RecyclerView, adapter: CharacterAdapter){
             recyclerView.adapter = adapter
         }
     }
 
-    fun initiateUpdateAdapter(oldList: List<GithubUser>, newUsers: List<GithubUser>){
-        val diffResult = DiffUtil.calculateDiff(UsersDiffUtil(oldList.toMutableList(), newUsers.toMutableList()))
-        adapter.users = newUsers
+    fun initiateUpdateAdapter(oldList: List<Character>, newUsers: List<Character>){
+        val diffResult = DiffUtil.calculateDiff(CharacterComparator(oldList.toMutableList(), newUsers.toMutableList()))
+        adapter.characters = newUsers
         diffResult.dispatchUpdatesTo(adapter)
     }
 
+    fun initializeListeners(){
+        binding?.swiperefreshFragmentPostsRefresh?.setOnRefreshListener {
+            initiateClearData()
+            initiateRequestPosts()
+        }
+    }
+
+    fun initiateClearData(){
+        var newList = mutableListOf<Character>()
+        newList.addAll(adapter.characters)
+        newList.clear()
+        initiateUpdateAdapter(adapter.characters, newList)
+    }
+
     fun initiateRequestPosts(){
-        viewModel.initiateRequestPosts()
+        viewModel.initiateRequestCharacters(1)
     }
 
     fun initializeObservers(){
         viewModel.usersLiveData.observe(viewLifecycleOwner, {
-            initiateUpdateAdapter(adapter.users, it)
+            initiateUpdateAdapter(adapter.characters, it)
         })
-    }
-
-    fun initiateRemoveItem(){
-        binding?.buttonFragmentPostsRemove?.setOnClickListener {
-            val newList = mutableListOf<GithubUser>()
-            newList.addAll(adapter.users)
-            newList.removeAt(1)
-            initiateUpdateAdapter(adapter.users, newList)
-        }
+        viewModel.loaderLiveData.observe(viewLifecycleOwner, {
+            binding?.swiperefreshFragmentPostsRefresh?.isRefreshing = it
+        })
     }
 
     override fun initializeLayout(): Int { return R.layout.fragment_posts }
