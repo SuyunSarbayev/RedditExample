@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable
+            name="user"
+            type="kz.suyun.redditexample.data.GithubUser" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardview_viewholder_posts"
+        android:layout_width="match_parent"
+        android:layout_margin="10dp"
+        app:cardElevation="12dp"
+        android:layout_height="100dp"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardview_viewholder_posts_avatar"
+                android:elevation="12dp"
+                app:cardCornerRadius="40dp"
+                android:layout_centerHorizontal="true"
+                android:innerRadius="0dp"
+                android:shape="ring"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginStart="16dp"
+                app:circularflow_angles="16dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:thicknessRatio="1.9">
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/imageview_viewholder_posts_avatar"
+                    android:scaleType="centerCrop"
+                    app:loadAvatar="@{user.avatar_url}"
+                    tools:src="@drawable/ic_launcher_background"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/textview_viewholder_posts_name"
+                android:textColor="@color/black"
+                android:text="@{user.login}"
+                android:layout_marginStart="16dp"
+                app:layout_constraintTop_toTopOf="@+id/cardview_viewholder_posts_avatar"
+                app:layout_constraintStart_toEndOf="@+id/cardview_viewholder_posts_avatar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="John Doe"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</layout>
